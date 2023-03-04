@@ -1,8 +1,10 @@
 import { MantineProvider } from '@mantine/core'
+import { DatesProvider } from '@mantine/dates'
 import { type AppProps, type AppType } from 'next/app'
 import Head from 'next/head'
 
 import { api } from '~/utils/api'
+import 'dayjs/locale/en-gb'
 
 const MyApp: AppType = ({ Component, pageProps }: AppProps) => {
 	return (
@@ -21,8 +23,13 @@ const MyApp: AppType = ({ Component, pageProps }: AppProps) => {
 					colorScheme: 'dark'
 				}}
 			>
+				<DatesProvider settings={{
+					locale: 'en-gb'
+				}}>
 
-				<Component {...pageProps} />
+					<Component {...pageProps} />
+
+				</DatesProvider>
 
 			</MantineProvider>
 		</>

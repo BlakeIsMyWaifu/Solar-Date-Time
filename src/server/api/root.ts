@@ -1,8 +1,8 @@
-import { exampleRouter } from '~/server/api/routers/example'
+import { geonamesRouter } from '~/server/api/routers/geonames'
 import { createTRPCRouter } from '~/server/api/trpc'
 
 export const appRouter = createTRPCRouter({
-	example: exampleRouter
+	geonames: geonamesRouter
 })
 
 export type AppRouter = typeof appRouter;
