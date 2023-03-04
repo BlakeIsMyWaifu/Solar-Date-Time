@@ -4,11 +4,16 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev && start http://localhost:3000",
+    "dev": "next dev",
     "lint": "next lint",
     "start": "next start"
   },
   "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/server": "^11.10.0",
+    "@mantine/core": "^6.0.0",
+    "@mantine/hooks": "^6.0.0",
+    "@mantine/next": "^6.0.0",
     "@tanstack/react-query": "^4.20.2",
     "@trpc/client": "^10.9.0",
     "@trpc/next": "^10.9.0",
