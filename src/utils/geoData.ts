@@ -10,10 +10,10 @@ const geoAPI = async <T>(params: URLSearchParams, endpoint: string): Promise<T> 
 
 interface SearchReturn {
 	totalResultsCount: number;
-	geonames: Geonames[];
+	geonames: GeonamesData[];
 }
 
-interface Geonames {
+export interface GeonamesData {
 	adminCode1: string;
 	/** Longitude */
 	lng: string;

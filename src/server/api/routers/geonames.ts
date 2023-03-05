@@ -3,8 +3,7 @@ import { searchLocation } from '~/utils/geoData'
 import { z } from 'zod'
 
 export const geonamesRouter = createTRPCRouter({
-
-	autocompleteLocation: publicProcedure
+	autocompleteLocations: publicProcedure
 		.input(z.object({
 			location: z.string(),
 			countryCode: z.string().optional()
