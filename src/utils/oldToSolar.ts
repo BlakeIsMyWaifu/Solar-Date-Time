@@ -2,11 +2,11 @@ import { searchLocation } from './request'
 import { getTimes } from './suncalc'
 import { timeToSeconds, type Time } from './time'
 
-export default async (time: Time, location: string) => {
+export default async (time: Time, location: string | [number, number]) => {
 
 	const oldTimeSeconds = timeToSeconds(time)
 
-	const locationData = await searchLocation(location)
+	const locationData = typeof location === 'string' ? await searchLocation(location) : { geonames: [{ lng: location[0], lat: location[1] }] }
 	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 	const { lng, lat } = locationData.geonames[0]!
 
