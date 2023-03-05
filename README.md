@@ -1,1 +1,1 @@
-# Solar Date Time
+# Solar Decimal Time

@@ -10,7 +10,7 @@ const MyApp: AppType = ({ Component, pageProps }: AppProps) => {
 	return (
 		<>
 			<Head>
-				<title>Solar Date Time</title>
+				<title>Solar Decimal Time</title>
 				<link rel='shortcut icon' href='/favicon.ico' />
 				<meta name='viewport' content='minimum-scale=1, initial-scale=1, width=device-width' />
 				<meta charSet='UTF-8' />

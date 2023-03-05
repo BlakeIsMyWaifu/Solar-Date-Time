@@ -47,7 +47,7 @@ const Home: NextPage = () => {
 				<ActionIcon variant='light' onClick={() => toggleIsOldToSolar()}>
 					{isOldToSolar ? <IconArrowRight /> : <IconArrowLeft />}
 				</ActionIcon>
-				<Title>Solar Time</Title>
+				<Title>Solar Decimal Time</Title>
 			</Group>
 
 			<Group align='end'>
@@ -137,7 +137,7 @@ const Home: NextPage = () => {
 				{
 					!isOldToSolar && <NumberInput
 						required
-						label='Solar Date Time'
+						label='Solar Decimal Time'
 						value={solarTime}
 						onChange={setSolarTime}
 						min={0}
@@ -145,7 +145,7 @@ const Home: NextPage = () => {
 						precision={2}
 						step={0.5}
 						style={{
-							width: '120px'
+							width: '140px'
 						}}
 					/>
 				}
