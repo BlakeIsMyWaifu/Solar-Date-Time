@@ -1,3 +1,4 @@
+import { modulo } from './maths'
 import { searchLocation } from './request'
 import { getTimes } from './suncalc'
 import { timeToSeconds, type Time } from './time'
@@ -7,8 +8,7 @@ export default async (time: Time, location: string | [number, number]) => {
 	const oldTimeSeconds = timeToSeconds(time)
 
 	const locationData = typeof location === 'string' ? await searchLocation(location) : { geonames: [{ lng: location[0], lat: location[1] }] }
-	// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-	const { lng, lat } = locationData.geonames[0]!
+	const { lng, lat } = locationData.geonames[0] ?? { lng: 0, lat: 0 }
 
 	const date = new Date()
 	date.setHours(time.hour)
@@ -36,7 +36,7 @@ export default async (time: Time, location: string | [number, number]) => {
 
 	const num = isDay
 		? (oldTimeSeconds - sunriseSeconds) / light
-		: ((oldTimeSeconds - sunsetSeconds) % 86400) / light
+		: modulo(oldTimeSeconds - sunsetSeconds, 86400) / light
 
 	return {
 		sol: isDay ? 'Day' : 'Night',
