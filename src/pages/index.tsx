@@ -1,19 +1,28 @@
-import { Autocomplete, Avatar, Button, Group, Loader, Select, Stack, Text, Title } from '@mantine/core'
+import { ActionIcon, Autocomplete, Avatar, Button, Group, Loader, Select, Stack, Title, Text, NumberInput } from '@mantine/core'
+import { useToggle } from '@mantine/hooks'
+import { IconArrowLeft, IconArrowRight, IconMoon, IconSun } from '@tabler/icons-react'
+import { type NextPage } from 'next'
 import { TimeInput } from '@mantine/dates'
 import { useDebouncedState, useInputState } from '@mantine/hooks'
-import { type NextPage } from 'next'
 import { useEffect } from 'react'
-import { CountryAutocompleteItem, type CountryItemProps, LocationAutocompleteItem, type LocationItemProps } from '~/components/AutocompleteItems'
+import { CountrySelectItem, type CountryItemProps, LocationAutocompleteItem, type LocationItemProps, SolaritySelectItem } from '~/components/AutocompleteItems'
 import { api } from '~/utils/api'
-import { countryCodes } from '~/utils/request'
+import { countryCodes } from '~/utils/geoData'
 
 const Home: NextPage = () => {
 
+	const [isOldToSolar, toggleIsOldToSolar] = useToggle([true, false])
+
 	const [countryCode, setCountryCode] = useInputState<string | null>(null)
 	const [location, setLocation] = useDebouncedState('', 750)
+
 	const [time, setTime] = useInputState('')
 
-	const oldToSolar = api.geonames.oldToSolar.useMutation()
+	const [solarity, setSolarity] = useInputState<'Day' | 'Night'>('Day')
+	const [solarTime, setSolarTime] = useInputState<number | ''>(0)
+
+	const oldToSolar = api.calculations.oldToSolar.useMutation()
+	const solarToOld = api.calculations.solarToOld.useMutation()
 
 	const autocompleteLocation = api.geonames.autocompleteLocation.useMutation()
 
@@ -33,12 +42,20 @@ const Home: NextPage = () => {
 				height: '100vh'
 			}}
 		>
-			<Title>Old Time to Solar Time</Title>
+			<Group>
+				<Title>Old Time</Title>
+				<ActionIcon variant='light' onClick={() => toggleIsOldToSolar()}>
+					{isOldToSolar ? <IconArrowRight /> : <IconArrowLeft />}
+				</ActionIcon>
+				<Title>Solar Time</Title>
+			</Group>
 
 			<Group align='end'>
+
 				<Select
 					searchable
 					allowDeselect
+					label='Country Code'
 					onChange={setCountryCode}
 					style={{
 						width: '160px'
@@ -52,10 +69,12 @@ const Home: NextPage = () => {
 						}
 						return countryData
 					})}
-					itemComponent={CountryAutocompleteItem}
-					icon={<Avatar src={`http://purecatamphetamine.github.io/country-flag-icons/3x2/${countryCode ?? ''}.svg`} size={'sm'} />}
+					itemComponent={CountrySelectItem}
+					icon={<Avatar src={countryCode ? `http://purecatamphetamine.github.io/country-flag-icons/3x2/${countryCode}.svg` : null} size={'sm'} />}
 				/>
+
 				<Autocomplete
+					required
 					label='Location'
 					onChange={setLocation}
 					style={{
@@ -64,7 +83,7 @@ const Home: NextPage = () => {
 					data={autocompleteLocation.isSuccess ? autocompleteLocation.data.map(location => {
 						const locationData: LocationItemProps = {
 							value: location.name,
-							country: location.countryName,
+							country: `Lat: ${location.lat} / Lng: ${location.lng}`,
 							image: `http://purecatamphetamine.github.io/country-flag-icons/3x2/${location.countryCode}.svg`,
 							key: `${location.name}/${location.lat}`
 						}
@@ -72,28 +91,94 @@ const Home: NextPage = () => {
 					}) : []}
 					itemComponent={LocationAutocompleteItem}
 					rightSection={autocompleteLocation.isLoading ? <Loader size='16px' /> : null}
-					error={!autocompleteLocation.data?.map(location => location.name).includes(location) && !autocompleteLocation.isLoading}
+					error={
+						!autocompleteLocation.data?.map(location => location.name.toLowerCase()).includes(location.toLowerCase())
+						&& !autocompleteLocation.isLoading
+						&& !!location.length
+					}
 				/>
-				<TimeInput
-					label='Time'
-					value={time}
-					onChange={setTime}
-					error={!time.split(':')[1]}
-				/>
+
+				{
+					isOldToSolar && <TimeInput
+						required
+						label='Time'
+						value={time}
+						onChange={setTime}
+						error={!time.split(':')[1] && !!time.length}
+					/>
+				}
+
+				{
+					!isOldToSolar && <Select
+						required
+						label='Solarity'
+						value={solarity}
+						onChange={event => setSolarity(event === 'Day' ? 'Day' : 'Night')}
+						style={{
+							width: '120px'
+						}}
+						data={[
+							{
+								value: 'Day',
+								label: 'Day',
+								icon: <IconSun />
+							},
+							{
+								value: 'Night',
+								label: 'Night',
+								icon: <IconMoon />
+							}
+						]}
+						itemComponent={SolaritySelectItem}
+						icon={solarity === 'Day' ? <IconSun /> : <IconMoon />}
+					/>
+				}
+
+				{
+					!isOldToSolar && <NumberInput
+						required
+						label='Solar Date Time'
+						value={solarTime}
+						onChange={setSolarTime}
+						min={0}
+						max={10}
+						precision={2}
+						step={0.5}
+						style={{
+							width: '120px'
+						}}
+					/>
+				}
+
 				<Button
 					color='gray'
 					onClick={() => {
-						const [hour, minute] = time.split(':')
-						if (!minute) return
-						oldToSolar.mutate({
-							location,
-							oldTime: [+(hour ?? 0), +(minute ?? 0)]
-						})
+						if (isOldToSolar) {
+							const [hour, minute] = time.split(':')
+							if (!minute) return
+							oldToSolar.mutate({
+								location,
+								oldTime: [+(hour ?? 0), +(minute ?? 0)]
+							})
+						} else {
+							solarToOld.mutate({
+								location,
+								solarity,
+								solarTime: typeof solarTime === 'number' ? solarTime : 0
+							})
+						}
 					}}
 				>Submit</Button>
+
 			</Group>
 
-			<Text>{oldToSolar.data?.sol} {oldToSolar.data?.num}</Text>
+			<Text>
+				{
+					isOldToSolar
+						? (oldToSolar.data ? `${oldToSolar.data.sol} ${oldToSolar.data.num}` : '. . .')
+						: (solarToOld.data ? solarToOld.data : '. . .')
+				}
+			</Text>
 		</Stack>
 	)
 }

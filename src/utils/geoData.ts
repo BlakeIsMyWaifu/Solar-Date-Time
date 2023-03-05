@@ -54,6 +54,15 @@ export const searchLocation = async (location: string, options?: Partial<SearchO
 	return data
 }
 
+export const getLocationCords = async (location: string | [number, number]) => {
+	const locationData = typeof location === 'string' ? await searchLocation(location) : { geonames: [{ lng: location[0], lat: location[1] }] }
+	const { lng, lat } = locationData.geonames[0] ?? { lng: 0, lat: 0 }
+	return {
+		lng: +lng,
+		lat: +lat
+	}
+}
+
 export const countryCodes = {
 	AD: 'Andorra',
 	AE: 'United Arab Emirates',
