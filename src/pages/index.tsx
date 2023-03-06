@@ -18,8 +18,10 @@ const Home: NextPage = () => {
 	return (
 		<Background>
 			<Paper style={{
+				position: 'absolute',
 				width: '900px',
-				padding: '48px'
+				padding: '48px',
+				zIndex: 100
 			}}>
 				<Stack align='center'>
 					<Group>

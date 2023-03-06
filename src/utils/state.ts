@@ -4,7 +4,12 @@ import { type GeonamesData } from './geoData'
 import { modulo } from './maths'
 import { secondsToTime, sunSeconds, timeToSeconds } from './time'
 
-type Solarity = 'Day' | 'Night'
+export type Solarity = 'Day' | 'Night'
+
+interface SolarTime {
+	solarity: Solarity;
+	number: number;
+}
 
 interface State {
 	isOldToSolar: boolean;
@@ -16,11 +21,8 @@ interface State {
 	oldTime: {
 		hour: number;
 		minute: number;
-	} | null;
-	convertedSolarTime: {
-		solarity: Solarity;
-		number: string;
-	} | null;
+	};
+	convertedSolarTime: SolarTime | null;
 
 	solarity: Solarity;
 	solarTime: number;
@@ -34,7 +36,10 @@ const stateSlice: State = {
 	locationData: null,
 	geoData: [],
 
-	oldTime: null,
+	oldTime: {
+		hour: 0,
+		minute: 0
+	},
 	convertedSolarTime: null,
 
 	solarity: 'Day',
@@ -106,10 +111,10 @@ const actionSlice: Slice<Store, Action> = (set, get) => ({
 		const { hour, minute } = get().oldTime ?? {}
 		if (typeof hour !== 'number' || typeof minute !== 'number') return
 
-		const oldTimeSeconds = timeToSeconds({ hour, minute })
-
 		const { lat, lng } = get().locationData ?? {}
 		if (!lat || !lng) return
+
+		const oldTimeSeconds = timeToSeconds({ hour, minute })
 
 		const date = new Date()
 		date.setHours(hour)
@@ -131,7 +136,7 @@ const actionSlice: Slice<Store, Action> = (set, get) => ({
 		set({
 			convertedSolarTime: {
 				solarity: isDay ? 'Day' : 'Night',
-				number: (num * 10).toFixed(2)
+				number: +(num * 10).toFixed(2)
 			}
 		}, false, 'oldToSolar')
 	},
