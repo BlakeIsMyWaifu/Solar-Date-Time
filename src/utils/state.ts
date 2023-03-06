@@ -10,7 +10,7 @@ interface State {
 	isOldToSolar: boolean;
 
 	countryCode: string | null;
-	location: GeonamesData | null;
+	locationData: GeonamesData | null;
 	geoData: GeonamesData[];
 
 	oldTime: {
@@ -31,7 +31,7 @@ const stateSlice: State = {
 	isOldToSolar: true,
 
 	countryCode: null,
-	location: null,
+	locationData: null,
 	geoData: [],
 
 	oldTime: null,
@@ -84,7 +84,7 @@ const actionSlice: Slice<Store, Action> = (set, get) => ({
 	setGeoData: geoData => {
 		set({
 			geoData,
-			location: geoData[0]
+			locationData: geoData[0]
 		}, false, 'setGeoData')
 
 		get().convertCurrent()
@@ -108,7 +108,7 @@ const actionSlice: Slice<Store, Action> = (set, get) => ({
 
 		const oldTimeSeconds = timeToSeconds({ hour, minute })
 
-		const { lat, lng } = get().location ?? {}
+		const { lat, lng } = get().locationData ?? {}
 		if (!lat || !lng) return
 
 		const date = new Date()
@@ -151,7 +151,7 @@ const actionSlice: Slice<Store, Action> = (set, get) => ({
 		get().solarToOld()
 	},
 	solarToOld: () => {
-		const { lat, lng } = get().location ?? {}
+		const { lat, lng } = get().locationData ?? {}
 		if (!lat || !lng) return
 
 		const { sunriseSeconds, sunsetSeconds } = sunSeconds(+lat, +lng)

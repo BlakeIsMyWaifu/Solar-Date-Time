@@ -2,6 +2,7 @@ import { Avatar, Group, Select, type SelectItem, Text } from '@mantine/core'
 import { forwardRef, type FC } from 'react'
 import { useGlobalStore } from '~/utils/state'
 import { countryCodes } from '~/utils/geoData'
+import { IconFlag } from '@tabler/icons-react'
 
 const CountryCode: FC = () => {
 
@@ -26,7 +27,7 @@ const CountryCode: FC = () => {
 			return countryData
 		})}
 		itemComponent={CountrySelectItem}
-		icon={<Avatar src={countryCode ? `http://purecatamphetamine.github.io/country-flag-icons/3x2/${countryCode}.svg` : null} size={'sm'} />}
+		icon={countryCode ? <Avatar src={`http://purecatamphetamine.github.io/country-flag-icons/3x2/${countryCode}.svg`} size={'sm'} /> : <IconFlag />}
 	/>
 }
 

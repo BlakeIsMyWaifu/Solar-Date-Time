@@ -3,11 +3,12 @@ import { useDebouncedState } from '@mantine/hooks'
 import { forwardRef, useEffect, type FC } from 'react'
 import { useGlobalStore } from '~/utils/state'
 import { api } from '~/utils/api'
+import { IconFlag } from '@tabler/icons-react'
 
 const Location: FC = () => {
 
 	const countryCode = useGlobalStore(state => state.countryCode)
-
+	const locationData = useGlobalStore(state => state.locationData)
 	const setGeoData = useGlobalStore(state => state.setGeoData)
 
 	const [location, setLocation] = useDebouncedState('', 750)
@@ -51,6 +52,7 @@ const Location: FC = () => {
 			)
 			|| !location.length
 		}
+		icon={locationData ? <Avatar src={`http://purecatamphetamine.github.io/country-flag-icons/3x2/${locationData.countryCode}.svg`} size={'sm'} /> : <IconFlag />}
 	/>
 }
 

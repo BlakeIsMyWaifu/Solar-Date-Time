@@ -1,4 +1,4 @@
-import { ActionIcon, Group, Stack, Title } from '@mantine/core'
+import { ActionIcon, Group, Paper, Stack, Title } from '@mantine/core'
 import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react'
 import { type NextPage } from 'next'
 import CountryCode from '~/components/CountryCode'
@@ -8,6 +8,7 @@ import SolarityInput from '~/components/SolarityInput'
 import SolarTimeInput from '~/components/SolarTimeInput'
 import { useGlobalStore } from '~/utils/state'
 import Results from '~/components/Results'
+import Background from '~/components/Background'
 
 const Home: NextPage = () => {
 
@@ -15,39 +16,38 @@ const Home: NextPage = () => {
 	const toggleConverter = useGlobalStore(state => state.toggleConverter)
 
 	return (
-		<Stack
-			align='center'
-			justify='center'
-			style={{
-				height: '100vh'
-			}}
-		>
+		<Background>
+			<Paper style={{
+				width: '900px',
+				padding: '48px'
+			}}>
+				<Stack align='center'>
+					<Group>
+						<Title>Old Time</Title>
+						<ActionIcon variant='light' onClick={() => toggleConverter()}>
+							{isOldToSolar ? <IconArrowRight /> : <IconArrowLeft />}
+						</ActionIcon>
+						<Title>Solar Decimal Time</Title>
+					</Group>
 
-			<Group>
-				<Title>Old Time</Title>
-				<ActionIcon variant='light' onClick={() => toggleConverter()}>
-					{isOldToSolar ? <IconArrowRight /> : <IconArrowLeft />}
-				</ActionIcon>
-				<Title>Solar Decimal Time</Title>
-			</Group>
+					<Group align='end'>
 
-			<Group align='end'>
+						<CountryCode />
 
-				<CountryCode />
+						<Location />
 
-				<Location />
+						{isOldToSolar && <OldTimeInput />}
 
-				{isOldToSolar && <OldTimeInput />}
+						{!isOldToSolar && <SolarityInput />}
 
-				{!isOldToSolar && <SolarityInput />}
+						{!isOldToSolar && <SolarTimeInput />}
 
-				{!isOldToSolar && <SolarTimeInput />}
+					</Group>
 
-			</Group>
-
-			<Results />
-
-		</Stack>
+					<Results />
+				</Stack>
+			</Paper>
+		</Background>
 	)
 }
 
