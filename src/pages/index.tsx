@@ -1,5 +1,4 @@
-import { ActionIcon, Group, Paper, Stack, Title } from '@mantine/core'
-import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react'
+import { Box, Group, Paper, Stack } from '@mantine/core'
 import { type NextPage } from 'next'
 import CountryCode from '~/components/CountryCode'
 import Location from '~/components/Location'
@@ -9,30 +8,47 @@ import SolarTimeInput from '~/components/SolarTimeInput'
 import { useGlobalStore } from '~/utils/state'
 import Results from '~/components/Results'
 import Background from '~/components/Background'
+import TimeTitle from '~/components/TimeTitle'
+import useIsMobile from '~/hooks/useIsMobile'
+import { type CSSProperties } from 'react'
 
 const Home: NextPage = () => {
 
+	const isMobile = useIsMobile()
+
 	const isOldToSolar = useGlobalStore(state => state.isOldToSolar)
-	const toggleConverter = useGlobalStore(state => state.toggleConverter)
+
+	const paperCommonStyle: CSSProperties = {
+		zIndex: 100
+	}
+
+	const paperDesktopStyle: CSSProperties = {
+		position: 'absolute',
+		top: '50%',
+		left: '50%',
+		transform: 'translate(-50%, -50%)',
+		width: '900px',
+		padding: '48px'
+	}
+
+	const paperMobileStyle: CSSProperties = {
+		width: '100%',
+		padding: '12px',
+		minHeight: '400px'
+	}
+
+	const paperCorrectStyle = isMobile ? paperMobileStyle : paperDesktopStyle
 
 	return (
 		<Background>
-			<Paper style={{
-				position: 'absolute',
-				width: '900px',
-				padding: '48px',
-				zIndex: 100
-			}}>
-				<Stack align='center'>
-					<Group>
-						<Title>Old Time</Title>
-						<ActionIcon variant='light' onClick={() => toggleConverter()}>
-							{isOldToSolar ? <IconArrowRight /> : <IconArrowLeft />}
-						</ActionIcon>
-						<Title>Solar Decimal Time</Title>
-					</Group>
+			<Paper style={{ ...paperCommonStyle, ...paperCorrectStyle }}>
+				<Stack align='center' spacing={isMobile ? 0 : 'md'}>
+					<TimeTitle />
 
-					<Group align='end'>
+					<Box component={isMobile ? Stack : Group} style={{
+						width: isMobile ? '280px' : 'auto',
+						height: isMobile ? '230px' : 'auto'
+					}}>
 
 						<CountryCode />
 
@@ -40,11 +56,13 @@ const Home: NextPage = () => {
 
 						{isOldToSolar && <OldTimeInput />}
 
-						{!isOldToSolar && <SolarityInput />}
+						<Group>
+							{!isOldToSolar && <SolarityInput />}
 
-						{!isOldToSolar && <SolarTimeInput />}
+							{!isOldToSolar && <SolarTimeInput />}
+						</Group>
 
-					</Group>
+					</Box>
 
 					<Results />
 				</Stack>

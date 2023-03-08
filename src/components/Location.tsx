@@ -4,8 +4,11 @@ import { forwardRef, useEffect, type FC } from 'react'
 import { useGlobalStore } from '~/utils/state'
 import { api } from '~/utils/api'
 import { IconFlag } from '@tabler/icons-react'
+import useIsMobile from '~/hooks/useIsMobile'
 
 const Location: FC = () => {
+
+	const isMobile = useIsMobile()
 
 	const countryCode = useGlobalStore(state => state.countryCode)
 	const geoData = useGlobalStore(state => state.geoData)
@@ -35,7 +38,7 @@ const Location: FC = () => {
 		label='Location'
 		onChange={setLocation}
 		style={{
-			width: '240px'
+			width: isMobile ? '100%' : '240px'
 		}}
 		data={geoData.map(location => {
 			const locationItemData: LocationItemProps = {

@@ -3,8 +3,11 @@ import { forwardRef, type FC } from 'react'
 import { useGlobalStore } from '~/utils/state'
 import { countryCodes } from '~/utils/geoData'
 import { IconFlag } from '@tabler/icons-react'
+import useIsMobile from '~/hooks/useIsMobile'
 
 const CountryCode: FC = () => {
+
+	const isMobile = useIsMobile()
 
 	const countryCode = useGlobalStore(state => state.countryCode)
 	const setCountryCode = useGlobalStore(state => state.setCountryCode)
@@ -15,7 +18,7 @@ const CountryCode: FC = () => {
 		label='Country Code'
 		onChange={setCountryCode}
 		style={{
-			width: '160px'
+			width: isMobile ? '100%' : '160px'
 		}}
 		data={Object.entries(countryCodes).map(([code, name]) => {
 			const countryData: CountryItemProps = {
