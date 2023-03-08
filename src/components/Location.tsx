@@ -8,14 +8,17 @@ import { IconFlag } from '@tabler/icons-react'
 const Location: FC = () => {
 
 	const countryCode = useGlobalStore(state => state.countryCode)
-	const locationData = useGlobalStore(state => state.locationData)
+	const geoData = useGlobalStore(state => state.geoData)
 	const setGeoData = useGlobalStore(state => state.setGeoData)
+	const setTimezoneData = useGlobalStore(state => state.setTimezoneData)
 
 	const [location, setLocation] = useDebouncedState('', 750)
 
 	const autocompleteLocations = api.geonames.autocompleteLocations.useMutation({
 		onSuccess: data => {
-			setGeoData(data)
+			if (!data.geodata) return
+			setGeoData(data.geodata)
+			setTimezoneData(data.timezone)
 		}
 	})
 
@@ -34,25 +37,25 @@ const Location: FC = () => {
 		style={{
 			width: '240px'
 		}}
-		data={autocompleteLocations.isSuccess ? autocompleteLocations.data.map(location => {
-			const locationData: LocationItemProps = {
+		data={geoData.map(location => {
+			const locationItemData: LocationItemProps = {
 				value: location.name,
 				country: `Lat: ${location.lat} / Lng: ${location.lng}`,
 				image: `http://purecatamphetamine.github.io/country-flag-icons/3x2/${location.countryCode}.svg`,
 				key: `${location.name}/${location.lat}`
 			}
-			return locationData
-		}) : []}
+			return locationItemData
+		})}
 		itemComponent={LocationAutocompleteItem}
 		rightSection={autocompleteLocations.isLoading ? <Loader size='16px' /> : null}
 		error={
 			(
-				!autocompleteLocations.data?.map(location => location.name.toLowerCase()).includes(location.toLowerCase())
-				&& !autocompleteLocations.isLoading
+				geoData.map(location => location.name.toLowerCase()).includes(location.toLowerCase())
+				&& autocompleteLocations.isLoading
 			)
 			|| !location.length
 		}
-		icon={locationData ? <Avatar src={`http://purecatamphetamine.github.io/country-flag-icons/3x2/${locationData.countryCode}.svg`} size={'sm'} /> : <IconFlag />}
+		icon={geoData[0] ? <Avatar src={`http://purecatamphetamine.github.io/country-flag-icons/3x2/${geoData[0].countryCode}.svg`} size={'sm'} /> : <IconFlag />}
 	/>
 }
 

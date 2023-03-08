@@ -1,6 +1,5 @@
 import { httpBatchLink, loggerLink } from '@trpc/client'
 import { createTRPCNext } from '@trpc/next'
-import { type inferRouterInputs, type inferRouterOutputs } from '@trpc/server'
 import superjson from 'superjson'
 
 import { type AppRouter } from '~/server/api/root'
@@ -29,7 +28,3 @@ export const api = createTRPCNext<AppRouter>({
 	},
 	ssr: false
 })
-
-export type RouterInputs = inferRouterInputs<AppRouter>;
-
-export type RouterOutputs = inferRouterOutputs<AppRouter>;

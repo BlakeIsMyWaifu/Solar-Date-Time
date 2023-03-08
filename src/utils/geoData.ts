@@ -54,13 +54,26 @@ export const searchLocation = async (location: string, options?: Partial<SearchO
 	return data
 }
 
-export const getLocationCords = async (location: string | [number, number]) => {
-	const locationData = typeof location === 'string' ? await searchLocation(location) : { geonames: [{ lng: location[0], lat: location[1] }] }
-	const { lng, lat } = locationData.geonames[0] ?? { lng: 0, lat: 0 }
-	return {
-		lng: +lng,
-		lat: +lat
-	}
+export interface TimezoneData {
+	sunrise: string;
+	lng: number;
+	countryCode: string;
+	gmtOffset: number;
+	rawOffset: number;
+	sunset: string;
+	timezoneId: string;
+	dstOffset: number;
+	countryName: string;
+	time: string;
+	lat: number;
+}
+
+export const searchTimezone = async (lat: number, lng: number) => {
+	const params = new URLSearchParams()
+	params.set('lat', lat.toString())
+	params.set('lng', lng.toString())
+	const data = await geoAPI<TimezoneData>(params, 'timezoneJSON')
+	return data
 }
 
 export const countryCodes = {

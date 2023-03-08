@@ -1,8 +1,8 @@
 import { type StateCreator, create } from 'zustand'
 import { devtools, subscribeWithSelector } from 'zustand/middleware'
-import { type GeonamesData } from './geoData'
+import { type TimezoneData, type GeonamesData } from './geoData'
 import { modulo } from './maths'
-import { secondsToTime, sunSeconds, timeToSeconds } from './time'
+import { secondsToTime, stringToSeconds, timeToSeconds } from './time'
 
 export type Solarity = 'Day' | 'Night'
 
@@ -15,8 +15,8 @@ interface State {
 	isOldToSolar: boolean;
 
 	countryCode: string | null;
-	locationData: GeonamesData | null;
 	geoData: GeonamesData[];
+	timezoneData: TimezoneData | null;
 
 	oldTime: {
 		hour: number;
@@ -33,7 +33,7 @@ const stateSlice: State = {
 	isOldToSolar: true,
 
 	countryCode: null,
-	locationData: null,
+	timezoneData: null,
 	geoData: [],
 
 	oldTime: {
@@ -53,6 +53,7 @@ interface Action {
 
 	setCountryCode: (countryCode: string) => void;
 	setGeoData: (geoData: GeonamesData[]) => void;
+	setTimezoneData: (timezoneData: TimezoneData) => void;
 
 	setOldTime: (time: string) => void;
 	oldToSolar: () => void;
@@ -88,11 +89,15 @@ const actionSlice: Slice<Store, Action> = (set, get) => ({
 	},
 	setGeoData: geoData => {
 		set({
-			geoData,
-			locationData: geoData[0]
+			geoData
 		}, false, 'setGeoData')
 
 		get().convertCurrent()
+	},
+	setTimezoneData: timezoneData => {
+		set({
+			timezoneData
+		}, false, 'setTimezoneData')
 	},
 
 	setOldTime: time => {
@@ -111,17 +116,16 @@ const actionSlice: Slice<Store, Action> = (set, get) => ({
 		const { hour, minute } = get().oldTime ?? {}
 		if (typeof hour !== 'number' || typeof minute !== 'number') return
 
-		const { lat, lng } = get().locationData ?? {}
+		const { lat, lng } = get().geoData[0] ?? {}
 		if (!lat || !lng) return
 
+		const { sunrise, sunset } = get().timezoneData ?? {}
+		if (!sunrise || !sunset) return
+
+		const sunriseSeconds = stringToSeconds(sunrise)
+		const sunsetSeconds = stringToSeconds(sunset)
+
 		const oldTimeSeconds = timeToSeconds({ hour, minute })
-
-		const date = new Date()
-		date.setHours(hour)
-		date.setMinutes(minute)
-		date.setSeconds(0)
-
-		const { sunriseSeconds, sunsetSeconds } = sunSeconds(+lat, +lng, date)
 
 		const isDay = (sunriseSeconds < oldTimeSeconds) && (oldTimeSeconds < sunsetSeconds)
 
@@ -156,10 +160,14 @@ const actionSlice: Slice<Store, Action> = (set, get) => ({
 		get().solarToOld()
 	},
 	solarToOld: () => {
-		const { lat, lng } = get().locationData ?? {}
+		const { lat, lng } = get().geoData[0] ?? {}
 		if (!lat || !lng) return
 
-		const { sunriseSeconds, sunsetSeconds } = sunSeconds(+lat, +lng)
+		const { sunrise, sunset } = get().timezoneData ?? {}
+		if (!sunrise || !sunset) return
+
+		const sunriseSeconds = stringToSeconds(sunrise)
+		const sunsetSeconds = stringToSeconds(sunset)
 
 		const isDay = get().solarity === 'Day'
 

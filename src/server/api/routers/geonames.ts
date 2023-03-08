@@ -1,5 +1,5 @@
 import { createTRPCRouter, publicProcedure } from '~/server/api/trpc'
-import { searchLocation } from '~/utils/geoData'
+import { searchLocation, searchTimezone } from '~/utils/geoData'
 import { z } from 'zod'
 
 export const geonamesRouter = createTRPCRouter({
@@ -9,8 +9,14 @@ export const geonamesRouter = createTRPCRouter({
 			countryCode: z.string().optional()
 		}))
 		.mutation(async ({ input }) => {
-			if (!input.location.length) return []
-			const data = await searchLocation(input.location, { maxRows: 5, countryCode: input.countryCode })
-			return data.geonames
+			if (!input.location.length) return {}
+			const locationData = await searchLocation(input.location, { maxRows: 5, countryCode: input.countryCode })
+			if (!locationData.geonames[0]) return {}
+			const { lat, lng } = locationData.geonames[0]
+			const timezoneData = await searchTimezone(+lat, +lng)
+			return {
+				geodata: locationData.geonames,
+				timezone: timezoneData
+			}
 		})
 })
